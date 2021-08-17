@@ -1,0 +1,7 @@
+node_modules/
+build/
+*.tgz
+yarn-error.log
+
+#mac
+.DS_Store
