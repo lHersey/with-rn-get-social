@@ -2,7 +2,7 @@ import { ConfigPlugin, WarningAggregator, withAppBuildGradle } from '@expo/confi
 
 import { GetSocialProps } from '../utils/types';
 
-const withSocialAppGraddlePlugin: ConfigPlugin<GetSocialProps> = (config, { appId }) => {
+const withSocialAppGraddlePlugin: ConfigPlugin<GetSocialProps> = (config, { appId, hostnames }) => {
   return withAppBuildGradle(config, ({ modResults, ...config }) => {
     if (modResults.language !== 'groovy') {
       WarningAggregator.addWarningAndroid(
@@ -14,6 +14,7 @@ const withSocialAppGraddlePlugin: ConfigPlugin<GetSocialProps> = (config, { appI
 
     modResults.contents = setApplySocialPlugin(modResults.contents);
     modResults.contents = setSocialPluginConfig(modResults.contents, appId);
+    modResults.contents = setGradlePlaceholders(modResults.contents, appId, hostnames);
     return { modResults, ...config };
   });
 };
@@ -34,5 +35,36 @@ export const setSocialPluginConfig = (appBuildGradle: string, socialAppId: strin
 
   return appBuildGradle.replace(/(android\s\{)/g, `$1\n    getsocial { appId "${socialAppId}" }`);
 };
+
+export function setGradlePlaceholders(appBuildGradle: string, socialAppId: string, hostnames?: [string, string]) {
+  const manifestPattern = /(manifestPlaceholders\s=\s\[)/;
+  const socialPlaceholders = getSocialPlaceholder(socialAppId, hostnames);
+
+  if (appBuildGradle.includes(socialPlaceholders)) return appBuildGradle;
+
+  if (!appBuildGradle.match(manifestPattern)) {
+    return appBuildGradle.replace(
+      /defaultConfig\s?{/,
+      `defaultConfig {
+          manifestPlaceholders = [${socialPlaceholders}]`,
+    );
+  }
+
+  return appBuildGradle.replace(manifestPattern, `$1${socialPlaceholders}, `);
+}
+
+function getSocialPlaceholder(socialAppId: string, hostnames?: [string, string]) {
+  const GET_SOCIAL_SCHEME_KEY = 'getsocial_scheme';
+  const GET_SOCIAL_HOSTNAME_0_KEY = 'getsocial_hostName_0';
+  const GET_SOCIAL_HOSTNAME_1_KEY = 'getsocial_hostName_1';
+  const DEFAULT_HOSTNAME_0 = 'getsocialdemo5.gsc.im';
+  const DEFAULT_HOSTNAME_1 = 'getsocialdemo5-gsalt.gsc.im';
+
+  const getSocialSchema = `${GET_SOCIAL_SCHEME_KEY}: "${socialAppId}"`;
+  const getSocialFirstHostName = `${GET_SOCIAL_HOSTNAME_0_KEY}:" ${hostnames?.[0] ?? DEFAULT_HOSTNAME_0}"`;
+  const getSocialSecondHostName = `${GET_SOCIAL_HOSTNAME_1_KEY}:" ${hostnames?.[1] ?? DEFAULT_HOSTNAME_1}"`;
+
+  return [getSocialSchema, getSocialFirstHostName, getSocialSecondHostName].join();
+}
 
 export default withSocialAppGraddlePlugin;

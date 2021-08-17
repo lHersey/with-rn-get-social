@@ -2,6 +2,7 @@ import { ExportedConfigWithProps } from '@expo/config-plugins';
 
 export type GetSocialProps = {
   appId: string;
+  hostnames: [string, string]
 };
 
 export type ProjectFile<L extends string = string> = {

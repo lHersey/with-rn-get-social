@@ -49,11 +49,13 @@ Open your `app.json` or `app.config.js` and update your `plugins` section (`expo
 ## Configuration
 
 The plugin needs to know the appId from `GetSocial`, you can read about how to configure GetSocial and get your appId on [Enable supported stores](https://docs.getsocial.im/guides/getting-started/react-native/#enable-supported-app-stores-on-the-dashboard)
+
+Optionally you can pass the hostnames to configure the android manifest, if ommited default values will be used (`getsocialdemo5.gsc.im` and `getsocialdemo5-gsalt.gsc.im`) You can read more about in [Setup app links](https://docs.getsocial.im/knowledge-base/manual-integration/android/#setup-app-links-for-android-6)
 ```json
 {
   "plugins": [
     [
-      "with-rn-get-social", { appId: "YOUR_APP_ID_HERE" }
+      "with-rn-get-social", { appId: "YOUR_APP_ID_HERE", hostnames: ["HOSTNAME_1", "HOSTNAME_2"] }
     ]
   ]
 }
