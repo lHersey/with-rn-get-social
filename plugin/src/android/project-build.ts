@@ -28,12 +28,12 @@ const setMavenRepository = (projectBuildGradle: string) => {
 };
 
 const setDependencies = (projectBuildGradle: string) => {
-  if (projectBuildGradle.includes('im.getsocial:plugin-v7:[1,2)')) return projectBuildGradle;
+  if (projectBuildGradle.includes('im.getsocial:plugin-v7')) return projectBuildGradle;
 
   return projectBuildGradle.replace(
     /dependencies\s?{/,
     `dependencies {
-        classpath "im.getsocial:plugin-v7:[1,2)"
+        classpath "im.getsocial:plugin-v7:1.0.9"
     `,
   );
 };
